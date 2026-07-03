@@ -1,0 +1,88 @@
+// This class handles the actual synchronisation between Thread A and
+// Thread B, using synchronized methods plus wait() and notify(), the
+// same way it was shown in lecture with guardedJoy() and notifyJoy().
+//
+// Each dependency arrow in Figure 2.1 gets its own boolean flag and its
+// own pair of methods: one that waits for the flag, one that sets the
+// flag and wakes everyone up.
+//
+// wait() and notify() only work from inside a synchronized method or
+// block, because they need to hold the object's intrinsic lock first.
+// That is why every method below is synchronized.
+public class ThreadSync {
+
+    private boolean a1Ready = false;
+    private boolean b2Ready = false;
+    private boolean a2Ready = false;
+    private boolean b3Ready = false;
+
+    // called by Thread A once A1 has been worked out
+    public synchronized void signalA1Ready() {
+        a1Ready = true;
+        notifyAll();   // wake up any thread waiting on this lock
+    }
+
+    // called by Thread B, pauses here until A1 is ready
+    public synchronized void waitForA1() {
+        // the while loop matters here, wait() can sometimes wake up
+        // even though nothing actually changed, so we check again
+        while (!a1Ready) {
+            try {
+                wait();   // releases the lock and pauses this thread
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    // called by Thread B once B2 has been worked out
+    public synchronized void signalB2Ready() {
+        b2Ready = true;
+        notifyAll();
+    }
+
+    // called by Thread A, pauses here until B2 is ready
+    public synchronized void waitForB2() {
+        while (!b2Ready) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    // called by Thread A once A2 has been worked out
+    public synchronized void signalA2Ready() {
+        a2Ready = true;
+        notifyAll();
+    }
+
+    // called by Thread B, pauses here until A2 is ready
+    public synchronized void waitForA2() {
+        while (!a2Ready) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    // called by Thread B once B3 has been worked out
+    public synchronized void signalB3Ready() {
+        b3Ready = true;
+        notifyAll();
+    }
+
+    // called by Thread A, pauses here until B3 is ready
+    public synchronized void waitForB3() {
+        while (!b3Ready) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+}
